@@ -2,14 +2,23 @@ package co.edu.eci.ieti.android.network.model;
 
 import java.util.Date;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "task_table")
 public class Task {
 
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "task")
     private long id;
     private String description;
     private int priority;
-    private Date dueDate;
+    private String dueDate;
 
-    public Task( long id, String description, int priority, Date dueDate)
+    public Task(@NonNull long id, String description, int priority, String dueDate)
     {
         this.id = id;
         this.description = description;
@@ -17,6 +26,7 @@ public class Task {
         this.dueDate = dueDate;
     }
 
+    @NonNull
     public long getId() {
         return id;
     }
@@ -41,18 +51,18 @@ public class Task {
         this.priority = priority;
     }
 
-    public Date getDueDate() {
+    public String getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
     }
 
     @Override
     public String toString() {
         return "Task{" +
-                "_id='" + id + '\'' +
+                " id='" + id + '\'' +
                 ", priority='" + priority + '\'' +
                 ", dueDate='" + dueDate + '\'' +
                 ", description='" + description + '\'' +

@@ -10,11 +10,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import co.edu.eci.ieti.R;
+import co.edu.eci.ieti.android.adapter.TasksAdapter;
+import co.edu.eci.ieti.android.network.model.Task;
 import co.edu.eci.ieti.android.storage.Storage;
+import co.edu.eci.ieti.android.viewModel.TaskViewModel;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.List;
 
 public class MainActivity
     extends AppCompatActivity
@@ -22,6 +33,8 @@ public class MainActivity
 {
 
     private Storage storage;
+    private RecyclerView recyclerView;
+    private TasksAdapter tasksAdapter;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -52,6 +65,44 @@ public class MainActivity
 
         NavigationView navigationView = findViewById( R.id.nav_view );
         navigationView.setNavigationItemSelectedListener( this );
+
+        recyclerView = findViewById(R.id.recyclerView);
+        configureRecyclerView();
+        TaskViewModel taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        taskViewModel.setToken(new Storage(this).getToken());
+        taskViewModel.getTasks().observe(this, new Observer<List<Task>>() {
+            @Override
+            public void onChanged(final List<Task> tasks) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tasksAdapter.updateTasks(tasks);
+                    }
+                });
+            }
+        });
+    }
+
+    private void configureRecyclerView()
+    {
+        recyclerView.setHasFixedSize( true );
+        LinearLayoutManager layoutManager = new LinearLayoutManager( this );
+        recyclerView.setAdapter( tasksAdapter );
+        recyclerView.setLayoutManager(layoutManager);
+    }
+
+    public void drawTask(List<Task> tasks){
+        RecyclerView recy = findViewById(R.id.recyclerView);
+
+        TasksAdapter adapter = new TasksAdapter(tasks);
+        recy.setHasFixedSize( true );
+        LinearLayoutManager layoutManager = new LinearLayoutManager( this );
+        recy.setAdapter(adapter);
+        recy.setLayoutManager(layoutManager);
+        adapter.notifyDataSetChanged();
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recy.getContext(),
+                layoutManager.getOrientation());
+        recy.addItemDecoration(dividerItemDecoration);
     }
 
     @Override
